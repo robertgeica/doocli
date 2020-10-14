@@ -1,6 +1,6 @@
 {
   "name": "doocli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple and intuitive cli application to manage tasks.",
   "main": "app.js",
   "bin": {
