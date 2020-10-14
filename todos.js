@@ -109,7 +109,6 @@ const markCompleted = (id) => {
 };
 
 const dueDate = (id, due) => {
-	console.log('dd');
 	const todos = loadTodos();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;

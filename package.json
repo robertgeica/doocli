@@ -1,18 +1,32 @@
 {
-  "name": "todo",
+  "name": "doocli",
   "version": "1.0.0",
-  "description": "cli todo-app",
+  "description": "A simple and intuitive cli application to manage tasks.",
   "main": "app.js",
   "bin": {
-    "todo-app": "./app.js"
+    "doo": "app.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" "
   },
   "author": "robertgeica",
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.0",
     "yargs": "^16.0.3"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertgeica/doo.git"
+  },
+  "keywords": [
+    "todo",
+    "cli",
+    "task"
+  ],
+  "bugs": {
+    "url": "https://github.com/robertgeica/doo/issues"
+  },
+  "homepage": "https://github.com/robertgeica/doo#readme"
 }
