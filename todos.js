@@ -52,7 +52,7 @@ const listTodos = () => {
 
 const addTodo = (title, due) => {
 	const todos = loadTodos();
-	const duplicateTodo = todos.find((todo) => todo.t === title);
+	const duplicateTodo = todos.find((todo) => todo.todo === title);
 	
 	const id = todos.length +1;
 	// dueDate: today (by default)
