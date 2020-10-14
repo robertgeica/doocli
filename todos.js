@@ -3,12 +3,22 @@ const fs = require('fs');
 
 // add lists
 // app l [listName]
+// 20639b blue
+// 3caea3 green
+// f6d55c yellow
+// ed553b red
 
 const date = new Date();
 
 const listTodos = () => {
 	const todos = loadTodos();
-	console.log(chalk.hex('f6d55c').bold('Your todos'));
+	if(todos.length == 0) {
+		todos;
+		console.log(chalk.hex('e67e22')('Your list is empty.', chalk.hex('fff')(`Stuck? Try 'doo --help'`)));
+		return ;
+	};
+
+	console.log(chalk.bold.underline('#todos\n'));
 
 	todos.forEach((todo) => {
 		const currentDay = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -29,34 +39,39 @@ const listTodos = () => {
 			todo.dueDate = dueDateDay;
 		}
 
-		const itemId = chalk.hex('3caea3').bold(`${todo.id}`);
-		const itemTodo = chalk.hex('3caea3').bold(`${todo.todo}`);
-		const dueDate = chalk.hex('20639b')(`${todo.dueDate}`);
+		const itemId = chalk.hex('ffffff').bold(`${todo.id}`);
+		const itemTodo = chalk.hex('398EEA').bold(`${todo.todo}`);
+		const dueDate = chalk.hex('23C05E')(`${todo.dueDate}`);
 
 		todo.completed == true
-			? console.log(`${itemId}      ${chalk.hex('ed553b')(`[x]`)}       ${dueDate}      ${itemTodo}`)
+			? console.log(`${itemId}      ${chalk.hex('f39c12')(`[x]`)}       ${dueDate}      ${itemTodo}`)
 			: console.log(`${itemId}      ${chalk.hex('ed553b')(`[ ]`)}       ${dueDate}      ${itemTodo}`)
 		;
 	});
 };
 
-const addTodo = (title, due, id) => {
+const addTodo = (title, due) => {
 	const todos = loadTodos();
 	const duplicateTodo = todos.find((todo) => todo.t === title);
 	
+	const id = todos.length +1;
 	// dueDate: today (by default)
 	if (!duplicateTodo) {
 		todos.push({
-			id: todos.length + 1,
+			id,
 			todo: title,
 			completed: false,
 			dueDate: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getDay()}`
 		});
 
 		saveTodos(todos);
-		console.log(chalk.hex('3caea3').bold('New todo added!'));
+		if(due !== undefined) {
+			dueDate(id, due);
+		};
+
+		console.log(chalk.hex('23C05E')('Todo added!'));
 	} else {
-		console.log(chalk.hex('ed553b').bold('todo already exists!'));
+		console.log(chalk.hex('ed553b')('Todo already exists!'));
 	};
 };
 
@@ -72,9 +87,9 @@ const removeTodo = (id) => {
 			newId++;
 		});
 
-		console.log(chalk.hex('3caea3').bold(`Your todo was deleted!`));
+		console.log(chalk.hex('23C05E')(`Todo deleted!`));
 	} else {
-		console.log(chalk.hex('ed553b').bold('Todo not found!'));
+		console.log(chalk.hex('ed553b')(`Todo ${chalk.bold(id)} not found!`));
 	};
 
 	saveTodos(keepTodos);
@@ -84,6 +99,9 @@ const markCompleted = (id) => {
 	const todos = loadTodos();
 	todos.map((todo) => {
 		if (todo.id == id) {
+			todo.completed == false 
+			? console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} completed!`)) 
+			: console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} uncompleted!`))
 			todo.completed = !todo.completed;
 			saveTodos(todos);
 		};
@@ -91,6 +109,7 @@ const markCompleted = (id) => {
 };
 
 const dueDate = (id, due) => {
+	console.log('dd');
 	const todos = loadTodos();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -102,8 +121,10 @@ const dueDate = (id, due) => {
 
 			if (due == 'tom') {
 				newDueDate = `${year}-${month}-${day + 1}`;
+				console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} is due ${chalk.bold('tomorrow')}!`)) 
 			} else if (due == 'tod') {
 				newDueDate = `${year}-${month}-${day}`;
+				console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} is due ${chalk.bold('today')}!`)) 
 			} else {
 				const newDate = new Date();
 				newDate.setDate(newDate.getDate() + parseInt(due));
@@ -129,7 +150,9 @@ const loadTodos = () => {
 		const dataJSON = dataBuffer.toString();
 		return JSON.parse(dataJSON);
 	} catch (e) {
-		console.log('No file exists. Creating file..');
+		console.log(chalk('No file exists. Creating file..'));
+		saveTodos([]);
+		console.log(chalk.hex('2ecc71')('Your file has been created!'));
 		return [];
 	}
 };

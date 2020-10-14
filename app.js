@@ -17,7 +17,7 @@ yargs.command({
 });
 
 // create add command
-// app add <todo>
+// app add [todo name], optional: [duedate]
 yargs.command({
     command: 'add',
     describe: 'add todo',
@@ -28,7 +28,7 @@ yargs.command({
 });
 
 // create remove command
-// app remove <id>
+// app remove [id]
 yargs.command({
   command: 'remove',
   describe: 'remove todo',
@@ -40,10 +40,10 @@ yargs.command({
 });
 
 // mark todo as completed
-// app c <id>
+// app c [id]
 yargs.command({
   command: 'c',
-  describe: '(un)complete todo',
+  describe: 'mark as (un)complete',
   
   handler(argv) {
     todos.markCompleted(argv._[1]);
@@ -51,10 +51,10 @@ yargs.command({
 });
 
 // add due date
-// doo dd <id> <tom/integer> 
+// doo dd [id] [tom/tod/number]
 yargs.command({
   command: 'dd',
-  describe: 'due date',
+  describe: 'add/modify due date',
 
   handler(argv) {
     todos.dueDate(argv._[1], argv._[2]);
