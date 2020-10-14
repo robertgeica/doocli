@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs')
-const todos = require('./todos.js')
+const yargs = require('yargs');
+const todos = require('./todos.js');
 
 // customize yargs version
-yargs.version('1.1.0')
+yargs.version('1.1.0');
 
 // list command
 yargs.command({
@@ -23,9 +23,9 @@ yargs.command({
     describe: 'add todo',
 
     handler(argv) {
-        todos.addTodo(argv._[1])
+        todos.addTodo(argv._[1], argv._[2])
     }
-})
+});
 
 // create remove command
 // app remove <id>
@@ -37,7 +37,7 @@ yargs.command({
     console.log(argv._[1]);
     todos.removeTodo(argv._[1]);
   }
-})
+});
 
 // mark todo as completed
 // app c <id>
@@ -48,7 +48,7 @@ yargs.command({
   handler(argv) {
     todos.markCompleted(argv._[1]);
   }
-})
+});
 
 // add due date
 // doo dd <id> <tom/integer> 
@@ -59,7 +59,7 @@ yargs.command({
   handler(argv) {
     todos.dueDate(argv._[1], argv._[2]);
   }
-})
+});
 
 
-yargs.parse()
+yargs.parse();
