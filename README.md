@@ -1,14 +1,18 @@
+### Doo doo is a command-line interface task manager 
+
+
 ## Installation
 
     $ npm i -g doocli
 
-## Commands
+## Available options
 
  - List all tasks
  - Add new task
  - Remove task
  - Check/Uncheck task
  - Set/Modify due date
+ - Track time
 
 **List all tasks**
 
@@ -16,32 +20,33 @@
  
 **Add new task**
 
-    $ doo add 'taskName'
-    // replace 'taskName' with your current task
+    $ doo add <taskName>
 
 **Add new task with due date**
 
-    $ doo add 'taskName' 'dateLimit'
+    $ doo add <taskName> <dateLimit>
     // if not specified, task's due date will be current day by default
     
 
 **Remove a task**
 
-    $ doo remove 'id'
-    // replace 'id' with task id
+    $ doo remove <id>
 
 **Mark task as completed/uncompleted**
 
-    $ doo c 'id'
+    $ doo c <id>
 
 **Add due date**
 
-    $ doo dd 'id' 'dateLimit'
+    $ doo dd <id> <dateLimit>
     
     / *
-	replace 'dateLimit' with:
+		<dateLimit> can be replaced with:
 	  tod (today)
 	  tom (tomorrow)
 	  a number (sets task's due date on current day + input number)
     */
    
+**Track time**
+		$ doo start <id>
+		$ doo stop <id>
