@@ -129,8 +129,9 @@ const dueDate = (id, due) => {
 			} else {
 				const newDate = new Date();
 				newDate.setDate(newDate.getDate() + parseInt(due));
-				newDueDate = `${newDate.getFullYear()}-${newDate.getMonth() +
-					1}-${newDate.getDate()}-${newDate.getDay()}`;
+				let m = (newDate.getMonth()+1) < 9 ? `0${newDate.getMonth()+1}` : newDate.getMonth() + 1;
+				let d = newDate.getDate() < 9 ? `0${newDate.getDate()}` : newDate.getDate();
+				newDueDate = `${newDate.getFullYear()}-${m}-${d}-${newDate.getDay()}`;
 			}
 
 			todo.dueDate = newDueDate;
