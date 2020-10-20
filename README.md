@@ -48,5 +48,7 @@
     */
    
 **Track time**
+
 		$ doo start <id>
+        
 		$ doo stop <id>
