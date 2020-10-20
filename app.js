@@ -61,5 +61,27 @@ yargs.command({
   }
 });
 
+// start timer
+// doo start <id>
+yargs.command({
+  command: 'start',
+  describe: 'start time tracking for task',
 
+  handler(argv) {
+    todos.startTimer(argv._[1]);
+  }
+});
+
+// stop timer
+// doo stop <id>
+yargs.command({
+  command: 'stop',
+  describe: 'stop time tracking for task',
+
+  handler(argv) {
+    todos.stopTimer(argv._[1]);
+  }
+});
+
+// stop time
 yargs.parse();
