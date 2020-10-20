@@ -1,4 +1,4 @@
-### Doo doo is a command-line interface task manager 
+### Doocli is a command-line interface task manager 
 
 
 ## Installation
