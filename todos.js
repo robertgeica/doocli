@@ -44,8 +44,16 @@ const listTodos = () => {
 		const dueDate = chalk.hex('23C05E')(`${todo.dueDate}`);
 
 		todo.completed == true
-			? console.log(`${itemId}      ${chalk.hex('f39c12')(`[x]`)}       ${dueDate}      ${itemTodo}       ${todo.hours}:${todo.minutes}`)
-			: console.log(`${itemId}      ${chalk.hex('ed553b')(`[ ]`)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`);
+			? console.log(
+					`${itemId}      ${chalk.hex('f39c12')(
+						`[x]`
+					)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
+				)
+			: console.log(
+					`${itemId}      ${chalk.hex('ed553b')(
+						`[ ]`
+					)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
+				);
 	});
 };
 
@@ -129,7 +137,7 @@ const dueDate = (id, due) => {
 			} else {
 				const newDate = new Date();
 				newDate.setDate(newDate.getDate() + parseInt(due));
-				let m = (newDate.getMonth()+1) < 9 ? `0${newDate.getMonth()+1}` : newDate.getMonth() + 1;
+				let m = newDate.getMonth() + 1 < 9 ? `0${newDate.getMonth() + 1}` : newDate.getMonth() + 1;
 				let d = newDate.getDate() < 9 ? `0${newDate.getDate()}` : newDate.getDate();
 				newDueDate = `${newDate.getFullYear()}-${m}-${d}-${newDate.getDay()}`;
 			}
@@ -167,10 +175,9 @@ const stopTimer = (id) => {
 	let totalMinutes = 0;
 	let totalTime = '';
 
-	
 	todos.map((todo) => {
-		if(todo.startTime == 0) {
-			return ;
+		if (todo.startTime == 0) {
+			return;
 		}
 
 		if (todo.id == id) {
@@ -185,8 +192,7 @@ const stopTimer = (id) => {
 			todo.startTime = 0;
 
 			console.log(
-				chalk.hex('fff')
-				(`Timer stopped for task #${chalk.bold(id)} ${chalk.bold(
+				chalk.hex('fff')(`Timer stopped for task #${chalk.bold(id)} ${chalk.bold(
 					todo.todo
 				)} \nIt's time ${date.getHours()}:${date.getMinutes()}\nTotal time tracked this session: ${totalTime}\nTotal time tracked: ${todo.totalHours}:${todo.totalMinutes}
 				`)
@@ -196,7 +202,94 @@ const stopTimer = (id) => {
 	});
 
 	saveTodos(todos);
+};
 
+const getStats = (id) => {
+	const todos = loadTodos();
+
+	if (id == null) { // overall stats
+		
+		let sortedTodos = [ ...todos ];
+		const sortArray = (a, b) => {
+			const h = a.totalHours;
+			const m = b.totalHours;
+			let flag = 0;
+
+			h > m ? flag = 1 : flag = -1;
+			return flag;
+		}
+		sortedTodos.sort(sortArray);
+
+
+		let count = 0;
+		let completedTasks = 0;
+		let topTasks = [];
+
+		sortedTodos.reverse().map((todo) => {
+			count++;
+			if (count < 4) {
+				topTasks.push(todo);
+			}
+
+			if (todo.completed == true) {
+				completedTasks++;
+			}
+		});
+
+
+		console.log(`Top three tasks sorted by time spent: `);
+		console.log(
+			`${chalk.bold(`#${topTasks[0].id} ${topTasks[0].todo}`)} with ${topTasks[0]
+				.totalHours} hours and ${topTasks[0].totalMinutes} minutes.`
+		);
+
+		console.log(
+			`${chalk.bold(`#${topTasks[1].id} ${topTasks[1].todo}`)} with ${topTasks[1]
+				.totalHours} hours and ${topTasks[1].totalMinutes} minutes.`
+		);
+
+		console.log(
+			`${chalk.bold(`#${topTasks[2].id} ${topTasks[2].todo}`)} with ${topTasks[2]
+				.totalHours} hours and ${topTasks[2].totalMinutes} minutes.\n`
+		);
+
+		let totalHours = 0;
+		let totalMins = 0;
+		todos.map((todo) => {
+			totalHours += todo.totalHours;
+			totalMins += todo.totalMinutes;
+		});
+		let minsToHours = 0;
+		while (totalMins > 60) {
+			totalMins -= 60;
+			minsToHours++;
+		}
+		totalHours += minsToHours;
+
+		console.log(`Total time spent: ${chalk.bold(`${totalHours} hours and ${totalMins} minutes`)}`);
+		console.log(`${chalk.bold(`${completedTasks} out of ${todos.length}`)} completed tasks by now.`);
+	
+	} else { // stats for a certain task
+		todos.map((todo) => {
+			if (todo.id == id) {
+				const itemId = chalk.hex('ffffff').bold(`${todo.id}`);
+				const itemTodo = chalk.hex('398EEA').bold(`${todo.todo}`);
+				const dueDate = chalk.hex('23C05E')(`${todo.dueDate.slice(0, 10)}`);
+
+				todo.completed == true
+					? console.log(
+							`${itemId}      ${chalk.hex('f39c12')(
+								`[x]`
+							)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
+						)
+					: console.log(
+							`${itemId}      ${chalk.hex('ed553b')(
+								`[ ]`
+							)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
+						);
+			}
+		});
+	}
 };
 
 // write to file
@@ -219,4 +312,4 @@ const loadTodos = () => {
 	}
 };
 
-module.exports = { addTodo, removeTodo, listTodos, markCompleted, dueDate, startTimer, stopTimer };
+module.exports = { addTodo, removeTodo, listTodos, markCompleted, dueDate, startTimer, stopTimer, getStats };

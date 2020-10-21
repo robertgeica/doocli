@@ -83,5 +83,16 @@ yargs.command({
   }
 });
 
+// stats
+// doo stats <id>
+yargs.command({
+  command: 'stats',
+  describe: 'stats for task',
+
+  handler(argv) {
+    todos.getStats(argv._[1]);
+  }
+});
+
 // stop time
 yargs.parse();
