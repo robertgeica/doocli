@@ -5,6 +5,10 @@
 
     $ npm i -g doocli
 
+## Update
+
+    $ npm update -g doocli
+
 ## Available options
 
  - List all tasks
@@ -13,6 +17,7 @@
  - Check/Uncheck task
  - Set/Modify due date
  - Track time
+ - Get stats
 
 **List all tasks**
 
@@ -52,3 +57,9 @@
 		$ doo start <id>
         
 		$ doo stop <id>
+
+**Get stats**
+
+		$ doo stats //get overall stats
+        
+		$ doo stats <id>
