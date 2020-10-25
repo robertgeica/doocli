@@ -8,34 +8,37 @@
 ## Update
 
     $ npm update -g doocli
+    
 
 ## Available options
 
- - List all tasks
+ - List all boards and tasks
  - Add new task
  - Remove task
  - Check/Uncheck task
  - Set/Modify due date
  - Track time
- - Get stats
+ - Create board
+ - Remove board
+ - Move task to another board
 
-**List all tasks**
+**List all boards and tasks**
 
     $ doo list
  
 **Add new task**
 
-    $ doo add <taskName>
+    $ doo add <taskName> <board> <dueDate>
+    // <board> and <dueDate> are optional. if not specified, default board will be **tasks** and dueDate will be current day
 
-**Add new task with due date**
+**Add new task in a board**
 
-    $ doo add <taskName> <dateLimit>
-    // if not specified, task's due date will be current day by default
+    $ doo add <taskName> <board>
     
 
 **Remove a task**
 
-    $ doo remove <id>
+    $ doo r <id>
 
 **Mark task as completed/uncompleted**
 
@@ -46,20 +49,26 @@
     $ doo dd <id> <dateLimit>
     
     / *
-		<dateLimit> can be replaced with:
+	  <dateLimit> can be replaced with:
 	  tod (today)
 	  tom (tomorrow)
-	  a number (sets task's due date on current day + input number)
+	  number (set task's due date on current day + input number)
     */
    
 **Track time**
 
-		$ doo start <id>
+	$ doo start <id>
         
-		$ doo stop <id>
+	$ doo stop <id>
 
-**Get stats**
+**Add new board**
 
-		$ doo stats //get overall stats
+	$ doo touch <boardName>
         
-		$ doo stats <id>
+**Remove a board**
+
+	$ doo rm <boardName>
+
+**Move task in another board**
+
+	$ doo mv <taskId> <boardName>
