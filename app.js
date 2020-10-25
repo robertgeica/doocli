@@ -7,57 +7,59 @@ const todos = require('./todos.js');
 yargs.version('1.1.0');
 
 // list command
+// doo list
 yargs.command({
   command: 'list',
   describe: 'list all todos',
 
   handler() {
-    todos.listTodos()
+    todos.listTasks()
   }
 });
 
 // create add command
-// app add [todo name], optional: [duedate]
+// doo add <todo> <board> <dueDate>
+// doo add <todo> <board>
+// doo add <todo>
 yargs.command({
     command: 'add',
     describe: 'add todo',
 
     handler(argv) {
-        todos.addTodo(argv._[1], argv._[2])
+        todos.addTask(argv._[1], argv._[2], argv._[3])
     }
 });
 
 // create remove command
-// app remove [id]
+// doo r <id>
 yargs.command({
-  command: 'remove',
-  describe: 'remove todo',
+  command: 'r',
+  describe: 'remove task',
 
   handler(argv) {
-    console.log(argv._[1]);
-    todos.removeTodo(argv._[1]);
+    todos.removeTask(argv._[1]);
   }
 });
 
 // mark todo as completed
-// app c [id]
+// doo c <id>
 yargs.command({
   command: 'c',
   describe: 'mark as (un)complete',
   
   handler(argv) {
-    todos.markCompleted(argv._[1]);
+    todos.setCompleted(argv._[1]);
   }
 });
 
 // add due date
-// doo dd [id] [tom/tod/number]
+// doo dd <id> <tod/tom/int>
 yargs.command({
   command: 'dd',
   describe: 'add/modify due date',
 
   handler(argv) {
-    todos.dueDate(argv._[1], argv._[2]);
+    todos.setDueDate(argv._[1], argv._[2]);
   }
 });
 
@@ -85,12 +87,42 @@ yargs.command({
 
 // stats
 // doo stats <id>
+// yargs.command({
+//   command: 'stats',
+//   describe: 'stats for task',
+
+//   handler(argv) {
+//     todos.getStats(argv._[1]);
+//   }
+// });
+
+// doo touch <boardName>
 yargs.command({
-  command: 'stats',
-  describe: 'stats for task',
+  command: 'touch',
+  describe: 'create new board',
 
   handler(argv) {
-    todos.getStats(argv._[1]);
+    todos.addBoard(argv._[1]);
+  }
+});
+
+// doo rm <boardName>
+yargs.command({
+  command: 'rm',
+  describe: 'remove a board',
+
+  handler(argv) {
+    todos.removeBoard(argv._[1]);
+  }
+});
+
+// doo mv <id> <toBoard>
+yargs.command({
+  command: 'mv',
+  describe: 'move task in another board',
+
+  handler(argv) {
+    todos.moveTask(argv._[1], argv._[2]);
   }
 });
 

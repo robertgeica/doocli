@@ -1,315 +1,509 @@
 const chalk = require('chalk');
 const fs = require('fs');
-
-// add lists
-// app l [listName]
-// 20639b blue
-// 3caea3 green
-// f6d55c yellow
-// ed553b red
+const moment = require('moment');
 
 const date = new Date();
 
-const listTodos = () => {
-	const todos = loadTodos();
-	if (todos.length == 0) {
-		todos;
+const listTasks = () => {
+	const tasks = loadTasks();
+	const crtDate = moment().format('ddd, MMM Do YYYY');
+	const tomorrowDate = moment().add(1, 'days').format('ddd, MMM Do YYYY');
+
+	if (tasks.length == 0) {
 		console.log(chalk.hex('e67e22')('Your list is empty.', chalk.hex('fff')(`Stuck? Try 'doo --help'`)));
 		return;
 	}
 
-	console.log(chalk.bold.underline('#todos\n'));
+	tasks.map((board) => {
+		let completedTasks = board.tasks.filter((task) => task.completed == true);
+		const boardName = chalk.hex('0077B5').bold(`@${board.boardName}`);
+		const tasksInfo = chalk.hex('0077B5')(`[${completedTasks.length}/${board.tasks.length}]`);
 
-	todos.forEach((todo) => {
-		const currentDay = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-		const tomorrow = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() + 1}`;
-		const weekDays = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
-		const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-		let dayOfWeek = weekDays[todo.dueDate.slice(-1)];
-		let dayOfMonth = todo.dueDate.slice(-4, -2);
-		let month = months[parseInt(todo.dueDate.slice(-7, -5)) - 2];
-		const dueDateDay = `${dayOfWeek}, ${dayOfMonth} ${month}`;
+		console.log(`\v${boardName} ${tasksInfo}`);
 
-		todo.dueDate = todo.dueDate.slice(0, 10);
-		if (todo.dueDate == currentDay) {
-			todo.dueDate = 'today';
-		} else if (todo.dueDate == tomorrow) {
-			todo.dueDate = 'tomorrow';
-		} else {
-			todo.dueDate = dueDateDay;
-		}
-
-		const itemId = chalk.hex('ffffff').bold(`${todo.id}`);
-		const itemTodo = chalk.hex('398EEA').bold(`${todo.todo}`);
-		const dueDate = chalk.hex('23C05E')(`${todo.dueDate}`);
-
-		todo.completed == true
-			? console.log(
-					`${itemId}      ${chalk.hex('f39c12')(
-						`[x]`
-					)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
-				)
-			: console.log(
-					`${itemId}      ${chalk.hex('ed553b')(
-						`[ ]`
-					)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
-				);
-	});
-};
-
-const addTodo = (title, due) => {
-	const todos = loadTodos();
-	const duplicateTodo = todos.find((todo) => todo.todo === title);
-
-	const id = todos.length + 1;
-	// dueDate: today (by default)
-	if (!duplicateTodo) {
-		todos.push({
-			id,
-			todo: title,
-			completed: false,
-			dueDate: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getDay()}`,
-			startTime: 0,
-			totalHours: 0,
-			totalMinutes: 0
-		});
-
-		saveTodos(todos);
-		if (due !== undefined) {
-			dueDate(id, due);
-		}
-
-		console.log(chalk.hex('23C05E')('Todo added!'));
-	} else {
-		console.log(chalk.hex('ed553b')('Todo already exists!'));
-	}
-};
-
-const removeTodo = (id) => {
-	const todos = loadTodos();
-	const keepTodos = todos.filter((todo) => todo.id != id);
-
-	if (todos.length > keepTodos.length) {
-		// set new id for remaining todos
-		let newId = 1;
-		keepTodos.map((obj) => {
-			obj.id = newId;
-			newId++;
-		});
-
-		console.log(chalk.hex('23C05E')(`Todo deleted!`));
-	} else {
-		console.log(chalk.hex('ed553b')(`Todo ${chalk.bold(id)} not found!`));
-	}
-
-	saveTodos(keepTodos);
-};
-
-const markCompleted = (id) => {
-	const todos = loadTodos();
-	todos.map((todo) => {
-		if (todo.id == id) {
-			todo.completed == false
-				? console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} completed!`))
-				: console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} uncompleted!`));
-			todo.completed = !todo.completed;
-			saveTodos(todos);
-		}
-	});
-};
-
-const dueDate = (id, due) => {
-	const todos = loadTodos();
-	const day = date.getDate();
-	const month = date.getMonth() + 1;
-	const year = date.getFullYear();
-
-	todos.map((todo) => {
-		if (todo.id == id) {
-			let newDueDate = '';
-
-			if (due == 'tom') {
-				newDueDate = `${year}-${month}-${day + 1}`;
-				console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} is due ${chalk.bold('tomorrow')}!`));
-			} else if (due == 'tod') {
-				newDueDate = `${year}-${month}-${day}`;
-				console.log(chalk.hex('fff')(`Todo #${chalk.bold(id)} is due ${chalk.bold('today')}!`));
+		board.tasks.map((task) => {
+			const taskId = chalk.hex('fff').bold(`${task.id}`);
+			const taskName = chalk.hex('0077B5').bold(`${task.taskName}`);
+			const taskCompleted = task.completed ? chalk.hex('25D366')(`[x]`) : chalk.hex('FFFC00')(`[ ]`);
+			let taskDueDate;
+			if (task.dueDate == crtDate) {
+				taskDueDate = chalk.hex('ff5700')(`today`);
+			} else if (task.dueDate == tomorrowDate) {
+				taskDueDate = chalk.hex('fff')(`tomorrow`);
 			} else {
-				const newDate = new Date();
-				newDate.setDate(newDate.getDate() + parseInt(due));
-				let m = newDate.getMonth() + 1 < 9 ? `0${newDate.getMonth() + 1}` : newDate.getMonth() + 1;
-				let d = newDate.getDate() < 9 ? `0${newDate.getDate()}` : newDate.getDate();
-				newDueDate = `${newDate.getFullYear()}-${m}-${d}-${newDate.getDay()}`;
+				taskDueDate = chalk.hex('fff')(`${task.dueDate.slice(0, -5)}`);
 			}
+			const priorityStatus = chalk.hex('fff')(`${task.priorityStatus}`);
+			const time = `${task.totalHours}:${task.totalMinutes}`;
 
-			todo.dueDate = newDueDate;
-			saveTodos(todos);
-		}
+			console.log(`${taskId}\t${taskCompleted}\t${taskName}\t${taskDueDate} \t${time}`);
+		});
 	});
+};
+
+const addTask = (taskName, boardName, dueDate) => {
+	const tasks = loadTasks();
+
+	if (dueDate == undefined) {
+		dueDate = moment().add(0, 'days').format('ddd, MMM Do YYYY');
+	}
+
+	let boardId = tasks.length + 1;
+	let taskId = 1;
+	let taskExist = false;
+	tasks.map((board) => {
+		const duplicateAlert = chalk.hex('ff5700')(
+			`Not added. Found duplicate task in board ${chalk.bold.hex('0077B5')(`@${board.boardName}`)}.`
+		);
+
+		taskId += board.tasks.length;
+		board.tasks.map((task) => {
+			if (task.taskName === taskName) {
+				console.log(duplicateAlert);
+				taskExist = true;
+			}
+		});
+	});
+
+	if (taskExist) {
+		return;
+	}
+
+	let newTask = {
+		id: taskId,
+		taskName: taskName,
+		completed: false,
+		dueDate: dueDate,
+
+		startTime: 0,
+		totalHours: 0,
+		totalMinutes: 0,
+
+		isArchived: false,
+		priorityStatus: 0
+	};
+
+	let newBoard = {
+		boardName: boardName,
+		boardId: boardId,
+		tasks: []
+	};
+
+	//if boardName == undefined
+	//	if defaultBoard exist
+	//		if task !exist
+	//			add task
+	//	else createDefaultBoard
+	//		add task
+	if (boardName == undefined) {
+		const defaultBoard = tasks.find((board) => board.boardName === 'tasks');
+
+		if (defaultBoard) {
+			const duplicatedTask = defaultBoard.tasks.find((task) => task.taskName === taskName);
+			if (!duplicatedTask) {
+				tasks.map((board) => {
+					const addedAlert = chalk.hex('25D366')(
+						`${chalk.hex('fff')(`#${newTask.id}`)} ${chalk.bold.hex('0077B5')(
+							`${newTask.taskName}`
+						)} added successfully in ${chalk.bold.hex('0077B5')(`@${board.boardName}`)}.`
+					);
+					if (board.boardName == 'tasks') {
+						board.tasks.push(newTask);
+						console.log(addedAlert);
+					}
+				});
+				saveTasks(tasks);
+			}
+		} else {
+			newBoard.boardName = 'tasks';
+			newBoard.tasks.push(newTask);
+			saveTasks([ ...tasks, newBoard ]);
+		}
+	}
+
+	// if boardName !== undefined
+	// 	if boardName exists
+	//		if task !exist
+	//			add task
+	//	else createBoard
+	//		add task
+
+	if (boardName !== undefined) {
+		const foundBoard = tasks.find((board) => board.boardName === boardName);
+		if (foundBoard) {
+			const duplicatedTask = foundBoard.tasks.find((task) => task.taskName === taskName);
+
+			if (!duplicatedTask) {
+				tasks.map((board) => {
+					const addedAlert = chalk.hex('25D366')(
+						`${chalk.hex('fff')(`#${newTask.id}`)} ${chalk.bold.hex('0077B5')(
+							`${newTask.taskName}`
+						)} added successfully in ${chalk.bold.hex('0077B5')(`@${board.boardName}`)}.`
+					);
+					if (board.boardName == boardName) {
+						board.tasks.push(newTask);
+						console.log(addedAlert);
+					}
+				});
+			}
+		} else {
+			newBoard.tasks.push(newTask);
+			tasks.push(newBoard);
+
+			console.log(
+				chalk.hex('25D366')(
+					`${chalk.hex('fff')(`#${newTask.id}`)} ${chalk.bold.hex('0077B5')(
+						`${newTask.taskName}`
+					)} added successfully in newly created board ${chalk.bold.hex('0077B5')(`@${boardName}`)}.`
+				)
+			);
+		}
+		saveTasks(tasks);
+	}
+	if (dueDate !== undefined) {
+		setDueDate(taskId, dueDate);
+	}
+};
+
+const removeTask = (id) => {
+	const tasks = loadTasks();
+	let newId = 1;
+	let flag = false;
+
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.id == id) {
+				const keepTasks = board.tasks.filter((task) => task.id != id);
+				board.tasks = keepTasks;
+				flag = true;
+
+				let taskOutput = chalk.hex('0077B5').bold(`${task.taskName}`);
+				let boardOutput = chalk.hex('0077B5').bold(`@${board.boardName}`);
+				console.log(chalk.hex('fff')(`Task ${taskOutput} removed from board ${boardOutput}!`));
+			}
+		});
+	});
+
+	// update id after removing a task
+	if (flag) {
+		tasks.map((board) => {
+			board.tasks.map((task) => {
+				task.id = newId++;
+			});
+		});
+	} else {
+		console.log(chalk.hex('ed553b')(`Task ${chalk.hex('fff').bold(`#${id}`)} not found!`));
+	}
+
+	saveTasks(tasks);
+};
+
+const setCompleted = (id) => {
+	const tasks = loadTasks();
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.id == id) {
+				task.completed == false
+					? console.log(chalk.hex('25D366')(`Todo ${chalk.hex('fff').bold(`#${id}`)} completed`))
+					: console.log(chalk.hex('ff5700')(`Todo ${chalk.hex('fff').bold(`#${id}`)} uncompleted`));
+				task.completed = !task.completed;
+			}
+		});
+	});
+	saveTasks(tasks);
+};
+
+const setDueDate = (id, due) => {
+	const tasks = loadTasks();
+	if (due == undefined) {
+		console.log(chalk.hex('ff5700')(`Enter ${chalk.hex('fff').bold(`tom, tod or number`)} to set due date.`));
+		return;
+	} else if (due == 'tod') {
+		due = 0;
+	} else if (due == 'tom') {
+		due = 1;
+	}
+
+	const dueDate = moment().add(due, 'days').format('ddd, MMM Do YYYY');
+
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.id == id) {
+				task.dueDate = dueDate;
+				console.log(
+					chalk.hex('fff')(
+						`#${chalk.bold(id)} ${chalk.hex('0077B5').bold(`${task.taskName}`)} is due ${chalk.bold(
+							`${dueDate}`
+						)}`
+					)
+				);
+			}
+		});
+	});
+	saveTasks(tasks);
 };
 
 const startTimer = (id) => {
-	const todos = loadTodos();
+	const tasks = loadTasks();
 	const startTime = date.getTime();
 
-	todos.map((todo) => {
-		if (todo.id == id) {
-			todo.startTime = startTime;
-			console.log(
-				chalk.hex('fff')(`Timer started for task #${chalk.bold(id)} ${chalk.bold(
-					todo.todo
-				)} \nIt's time ${date.getHours()}:${date.getMinutes()}\nTotal time tracked already: ${todo.totalHours}:${todo.totalMinutes}
-				`)
-			);
-		}
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.id == id) {
+				task.startTime = startTime;
+				console.log(
+					chalk.hex('fff')(
+						`Timer started for task ${chalk
+							.hex('0077B5')
+							.bold(`#${id} ${task.taskName}`)} at time ${moment().hour()}:${moment().minutes()}.`
+					)
+				);
+				console.log(
+					chalk.hex('fff')(
+						`Total time tracked already for this task: ${chalk
+							.hex('fff')
+							.bold(`${task.totalHours}:${task.totalMinutes}`)}`
+					)
+				);
+			}
+		});
 	});
-
-	saveTodos(todos);
+	saveTasks(tasks);
 };
 
 const stopTimer = (id) => {
-	const todos = loadTodos();
+	const tasks = loadTasks();
 	const stopTime = date.getTime();
 
 	let totalHours = 0;
 	let totalMinutes = 0;
 	let totalTime = '';
 
-	todos.map((todo) => {
-		if (todo.startTime == 0) {
-			return;
-		}
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.startTime == 0) {
+				return;
+			}
 
-		if (todo.id == id) {
-			const ms = Math.floor((stopTime - todo.startTime) / 60000);
+			if (task.id == id) {
+				const ms = Math.floor((stopTime - task.startTime) / 60000);
+				totalHours = Math.floor(ms / 60);
+				totalMinutes = ms % 60;
+				totalTime = `${totalHours}:${totalMinutes}`;
 
-			totalHours = Math.floor(ms / 60);
-			totalMinutes = ms % 60;
-			totalTime = `${totalHours}:${totalMinutes}`;
+				task.totalHours += totalHours;
+				task.totalMinutes += totalMinutes;
+				task.startTime = 0;
 
-			todo.totalHours += totalHours;
-			todo.totalMinutes += totalMinutes;
-			todo.startTime = 0;
-
-			console.log(
-				chalk.hex('fff')(`Timer stopped for task #${chalk.bold(id)} ${chalk.bold(
-					todo.todo
-				)} \nIt's time ${date.getHours()}:${date.getMinutes()}\nTotal time tracked this session: ${totalTime}\nTotal time tracked: ${todo.totalHours}:${todo.totalMinutes}
-				`)
-			);
-		}
-		// console.log(todo);
+				console.log(
+					chalk.hex('fff')(
+						`Timer stopped for task ${chalk
+							.hex('0077B5')
+							.bold(`#${id} ${task.taskName}`)} at time ${moment().hour()}:${moment().minutes()}.`
+					)
+				);
+				console.log(
+					chalk.hex('fff')(
+						`Total time tracked ${chalk.bold(
+							`${task.totalHours}:${task.totalMinutes}`
+						)} of which ${chalk.bold(`${totalTime}`)} in this session.`
+					)
+				);
+			}
+		});
 	});
 
-	saveTodos(todos);
+	saveTasks(tasks);
 };
 
+// 0077B5 blue
+// 25D366 green
+// FFFC00 yellow
+// ff5700 orange
+
 const getStats = (id) => {
-	const todos = loadTodos();
 
-	if (id == null) { // overall stats
-		
-		let sortedTodos = [ ...todos ];
-		const sortArray = (a, b) => {
-			const h = a.totalHours;
-			const m = b.totalHours;
-			let flag = 0;
+};
 
-			h > m ? flag = 1 : flag = -1;
-			return flag;
+const addBoard = (boardName) => {
+	let tasks = loadTasks();
+	const newBoard = {
+		boardName,
+		boardId: tasks.length + 1,
+		tasks: []
+	};
+	let newTasks = [ ...tasks, newBoard ];
+
+	if (tasks.length == 0) {
+		saveTasks(newBoard);
+	}
+	let flag = false;
+	tasks.map((board) => {
+		if (board.boardName == boardName) {
+			console.log(
+				chalk.hex('ff5700')(`Board with name ${chalk.hex('0077B5').bold(`@${boardName}`)} already exist`)
+			);
+			flag = true;
 		}
-		sortedTodos.sort(sortArray);
+	});
 
-
-		let count = 0;
-		let completedTasks = 0;
-		let topTasks = [];
-
-		sortedTodos.reverse().map((todo) => {
-			count++;
-			if (count < 4) {
-				topTasks.push(todo);
-			}
-
-			if (todo.completed == true) {
-				completedTasks++;
-			}
-		});
-
-
-		console.log(`Top three tasks sorted by time spent: `);
-		console.log(
-			`${chalk.bold(`#${topTasks[0].id} ${topTasks[0].todo}`)} with ${topTasks[0]
-				.totalHours} hours and ${topTasks[0].totalMinutes} minutes.`
-		);
-
-		console.log(
-			`${chalk.bold(`#${topTasks[1].id} ${topTasks[1].todo}`)} with ${topTasks[1]
-				.totalHours} hours and ${topTasks[1].totalMinutes} minutes.`
-		);
-
-		console.log(
-			`${chalk.bold(`#${topTasks[2].id} ${topTasks[2].todo}`)} with ${topTasks[2]
-				.totalHours} hours and ${topTasks[2].totalMinutes} minutes.\n`
-		);
-
-		let totalHours = 0;
-		let totalMins = 0;
-		todos.map((todo) => {
-			totalHours += todo.totalHours;
-			totalMins += todo.totalMinutes;
-		});
-		let minsToHours = 0;
-		while (totalMins > 60) {
-			totalMins -= 60;
-			minsToHours++;
-		}
-		totalHours += minsToHours;
-
-		console.log(`Total time spent: ${chalk.bold(`${totalHours} hours and ${totalMins} minutes`)}`);
-		console.log(`${chalk.bold(`${completedTasks} out of ${todos.length}`)} completed tasks by now.`);
-	
-	} else { // stats for a certain task
-		todos.map((todo) => {
-			if (todo.id == id) {
-				const itemId = chalk.hex('ffffff').bold(`${todo.id}`);
-				const itemTodo = chalk.hex('398EEA').bold(`${todo.todo}`);
-				const dueDate = chalk.hex('23C05E')(`${todo.dueDate.slice(0, 10)}`);
-
-				todo.completed == true
-					? console.log(
-							`${itemId}      ${chalk.hex('f39c12')(
-								`[x]`
-							)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
-						)
-					: console.log(
-							`${itemId}      ${chalk.hex('ed553b')(
-								`[ ]`
-							)}       ${dueDate}      ${itemTodo}       ${todo.totalHours}:${todo.totalMinutes}`
-						);
-			}
-		});
+	if (flag == false) {
+		console.log(chalk.hex('fff')(`Created board ${chalk.hex('0077B5').bold(`@${boardName}`)}`));
+		saveTasks(newTasks);
 	}
 };
 
+const removeBoard = (boardName) => {
+	let tasks = loadTasks();
+	let filtered;
+
+	let moveTasks = [];
+	let flag = false;
+
+	if (boardName == 'tasks') {
+		console.log(chalk.hex('ff5700')(`You are not allowed to delete the default board.`));
+		return;
+	}
+	const checkDefaultBoard = (board) => board.boardName == 'tasks';
+	const defaultExist = tasks.some(checkDefaultBoard);
+
+	if (defaultExist == false) {
+		console.log(chalk.hex('fff')(`Default board created.`));
+
+		let newBoard = {
+			boardName: 'tasks',
+			boardId: tasks.length + 1,
+			tasks: []
+		};
+		tasks = [ ...tasks, newBoard ];
+	}
+
+	tasks.map((board) => {
+		// check if board have tasks or not
+		if (board.boardName == boardName) {
+			if (board.tasks.length !== 0) {
+				console.log(
+					chalk.hex('fff')(`Started to copy tasks in default board ${chalk.hex('0077B5').bold(`@tasks`)}`)
+				);
+				moveTasks = [ ...board.tasks ];
+				filtered = tasks.filter((board) => {
+					return board.boardName != boardName;
+				});
+				console.log(chalk.hex('fff')(`Board ${chalk.hex('0077B5').bold(`@${boardName}`)} has been removed`));
+
+				flag = true;
+			} else {
+				console.log(chalk.hex('fff')(`Removed board ${chalk.hex('0077B5').bold(`@${boardName}`)}`));
+				filtered = tasks.filter((board) => {
+					return board.boardName != boardName;
+				});
+			}
+		}
+	});
+	tasks.map((board) => {
+		if (flag) {
+			if (board.boardName == 'tasks') {
+				board.tasks = [ ...board.tasks, ...moveTasks ];
+				console.log(
+					chalk.hex('fff')(
+						`Tasks from ${chalk.hex('0077b5').bold(`@${boardName}`)} are now in ${chalk
+							.hex('0077b5')
+							.bold(`@tasks`)}`
+					)
+				);
+			}
+		}
+	});
+
+	if (filtered == undefined) {
+		console.log(chalk.hex('ff5700')(`Board ${chalk.hex('0077b5').bold(`@${boardName}`)} does not exist`));
+		return null;
+	}
+
+	// add new id's
+	let boardId = 0;
+	tasks.map((board) => {
+		board.boardId = boardId++;
+	});
+	saveTasks(filtered);
+};
+
+
+const moveTask = (taskId, toBoard) => {
+	const tasks = loadTasks();
+	let taskToMove;
+	let filtered;
+	let fromBoard;
+
+	if (toBoard == undefined) {
+		console.log(chalk.hex('ff5700')(`Add board name to move task ${chalk.hex('fff').bold(`#${taskId}`)}`));
+		return;
+	}
+
+	tasks.map((board) => {
+		board.tasks.map((task) => {
+			if (task.id == taskId) {
+				// console.log(					chalk.hex('fff')(`Found task ${chalk.bold(`#${taskId}`)} in board ${chalk.hex('0077B5').bold(`@${board.boardName}`)}`));
+				filtered = board.tasks.filter((task) => task.id != taskId);
+				fromBoard = board.boardName;
+				taskToMove = board.tasks.filter((task) => task.id == taskId);
+			}
+		});
+	});
+
+	if (fromBoard == undefined) {
+		console.log(chalk.hex('ff5700').bold(`#${taskId} not found`));
+		return;
+	}
+
+	tasks.map((board) => {
+		if (board.boardName == toBoard) {
+			board.tasks.push(taskToMove[0]);
+			// console.log(`Added task in board ${board.boardName}`);
+		}
+
+		if (board.boardName == fromBoard) {
+			board.tasks = filtered;
+			// console.log(`Removed task from board ${board.boardName}`);
+		}
+	});
+
+	console.log(
+		chalk.hex('fff')(`Moved ${chalk.bold(`#${taskId}`)} from ${chalk.hex('0077B5').bold(`@${fromBoard}`)} to ${chalk.hex('0077B5').bold(`@${toBoard}`)}`)
+	);
+
+	saveTasks(tasks);
+};
+
 // write to file
-const saveTodos = (todos) => {
-	const dataJSON = JSON.stringify(todos);
-	fs.writeFileSync('.todos.json', dataJSON);
+const saveTasks = (tasks) => {
+	const dataJSON = JSON.stringify(tasks);
+	fs.writeFileSync('.doo.json', dataJSON);
 };
 
 // read from file
-const loadTodos = () => {
+const loadTasks = () => {
 	try {
-		const dataBuffer = fs.readFileSync('.todos.json');
+		const dataBuffer = fs.readFileSync('.doo.json');
 		const dataJSON = dataBuffer.toString();
 		return JSON.parse(dataJSON);
 	} catch (e) {
 		console.log(chalk('No file exists. Creating file..'));
-		saveTodos([]);
+		saveTasks([]);
 		console.log(chalk.hex('2ecc71')('Your file has been created!'));
 		return [];
 	}
 };
 
-module.exports = { addTodo, removeTodo, listTodos, markCompleted, dueDate, startTimer, stopTimer, getStats };
+module.exports = {
+	listTasks,
+	addTask,
+	removeTask,
+	setCompleted,
+	setDueDate,
+	startTimer,
+	stopTimer,
+	addBoard,
+	removeBoard,
+	moveTask
+};
