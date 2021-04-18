@@ -1,5 +1,6 @@
 ### Doocli is a command-line interface task manager 
 
+## Version 3.0.0 updates
 
 ## Installation
 
