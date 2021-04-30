@@ -84,6 +84,50 @@ yargs.command({
   },
 });
 
+yargs.command({
+  command: "add",
+  describe: "add task",
+
+  async handler(argv) {
+    // console.log(argv._[1], argv._[2]);
+
+    const user = keytar.getPassword("doocli", "user");
+
+    try {
+      const token = await user;
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      };
+
+      const board = await axios.get(
+        `http://localhost:4000/api/board/${argv._[2]}`,
+        config
+      );
+      if (board.data.length === 0) return console.log("board did not exist");
+
+      const taskObj = { taskName: argv._[1] };
+
+      const updatedBoard = {
+        ...board.data[0],
+        tasks: [...board.data[0].tasks, taskObj],
+      };
+
+      console.log(updatedBoard);
+      await axios.put(
+        `http://localhost:4000/api/board/${argv._[2]}`,
+        updatedBoard,
+        config
+      );
+    } catch (error) {
+      if (error) {
+        console.log("Error", error);
+      }
+    }
+  },
+});
 
 // stop time
 yargs.parse();
