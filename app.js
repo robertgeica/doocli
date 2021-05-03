@@ -3,6 +3,7 @@
 const yargs = require("yargs");
 const axios = require("axios");
 const keytar = require("keytar");
+const chalk = require("chalk");
 
 // register user
 yargs.command({
@@ -48,6 +49,48 @@ yargs.command({
 
       keytar.setPassword("doocli", "user", res.data.token);
       console.log(res.data.token);
+    } catch (error) {
+      if (error) {
+        console.log("Error", error);
+      }
+    }
+  },
+});
+
+// list tasks
+yargs.command({
+  command: "list",
+  describe: "list all todos",
+
+  async handler() {
+    const user = keytar.getPassword("doocli", "user");
+
+    try {
+      const token = await user;
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      };
+
+      const req = await axios.get(`http://localhost:4000/api/board`, config);
+
+      const data = req.data;
+      if (data == undefined) {
+        return console.log(
+          chalk.hex("e67e22")(
+            "Your list is empty.",
+            chalk.hex("fff")(`Stuck? Try 'doo --help'`)
+          )
+        );
+      }
+
+      data.forEach((board) =>
+        board.tasks.forEach((task) => {
+          console.log(task.taskName);
+        })
+      );
     } catch (error) {
       if (error) {
         console.log("Error", error);
@@ -108,7 +151,16 @@ yargs.command({
       );
       if (board.data.length === 0) return console.log("board did not exist");
 
-      const taskObj = { taskName: argv._[1] };
+      const taskObj = {
+        id: 0,
+        taskName: argv._[1],
+        taskComplete: false,
+        taskPriority: "",
+        dueDate: Date.now(),
+        trackedSessions: {},
+        isArchieved: false,
+        createdAt: Date.now(),
+      };
 
       const updatedBoard = {
         ...board.data[0],
