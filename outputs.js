@@ -1,5 +1,11 @@
 const chalk = require("chalk");
 
+const boardColor = "0077B5";
+const taskNameColor = '0077B5';
+const taskIdColor = "fff";
+const taskCompletedColor = '2980b9';
+const taskIsNotCompletedColor = 'e74c3c';
+
 const emptyList = () => {
   console.log(
     chalk.hex("e67e22")(
@@ -7,17 +13,28 @@ const emptyList = () => {
       chalk.hex("fff")(`Stuck? Try 'doo --help'`)
     )
   );
-}
+};
 const listTasks = (data) => {
-  data.forEach((board) =>
+  data.forEach((board) => {
+    const boardName = chalk.hex(boardColor).bold(`@${board.boardName}`);
+    const tasksStatus = chalk.hex(boardColor)(`[x]/[x]`);
+
+    console.log(`\v${boardName} ${tasksStatus}`);
     board.tasks.forEach((task) => {
-      console.log(task.taskName);
-    })
-  );
+      const taskId = chalk.hex(taskIdColor).bold(`${task.id}`);
+      const taskIsComplete = task.taskComplete ? chalk.hex(taskCompletedColor)(`[x]`) : chalk.hex(taskIsNotCompletedColor)(`[ ]`);;
+      const taskName = chalk.hex(taskNameColor).bold(`${task.taskName}`);
+      const taskDueDate = task.dueDate;
+      const taskPriority = task.taskPriority;
+
+      console.log(
+        `${taskId}\  ${taskIsComplete}\t ${taskName}\t${taskDueDate}\  ${taskPriority}`
+      );
+    });
+  });
 };
 
 module.exports = {
   emptyList,
   listTasks,
-
 };
