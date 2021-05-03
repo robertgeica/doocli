@@ -3,7 +3,8 @@
 const yargs = require("yargs");
 const axios = require("axios");
 const keytar = require("keytar");
-const chalk = require("chalk");
+const output = require('./outputs');
+
 
 // register user
 yargs.command({
@@ -77,20 +78,12 @@ yargs.command({
       const req = await axios.get(`http://localhost:4000/api/board`, config);
 
       const data = req.data;
-      if (data == undefined) {
-        return console.log(
-          chalk.hex("e67e22")(
-            "Your list is empty.",
-            chalk.hex("fff")(`Stuck? Try 'doo --help'`)
-          )
-        );
+      if (data == undefined || data.length == 0) {
+        return output.emptyList();
       }
 
-      data.forEach((board) =>
-        board.tasks.forEach((task) => {
-          console.log(task.taskName);
-        })
-      );
+      output.listTasks(data);
+      
     } catch (error) {
       if (error) {
         console.log("Error", error);
