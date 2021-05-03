@@ -1,10 +1,12 @@
 const chalk = require("chalk");
+const utils = require("./utils");
 
 const boardColor = "0077B5";
 const taskNameColor = '0077B5';
 const taskIdColor = "fff";
 const taskCompletedColor = '2980b9';
 const taskIsNotCompletedColor = 'e74c3c';
+const taskDueDateColor = 'ff5700';
 
 const emptyList = () => {
   console.log(
@@ -24,11 +26,12 @@ const listTasks = (data) => {
       const taskId = chalk.hex(taskIdColor).bold(`${task.id}`);
       const taskIsComplete = task.taskComplete ? chalk.hex(taskCompletedColor)(`[x]`) : chalk.hex(taskIsNotCompletedColor)(`[ ]`);;
       const taskName = chalk.hex(taskNameColor).bold(`${task.taskName}`);
-      const taskDueDate = task.dueDate;
+      const taskDueDate = chalk.hex(taskDueDateColor)(`${utils.formatDueDate(task.dueDate)}`);
+      
       const taskPriority = task.taskPriority;
 
       console.log(
-        `${taskId}\  ${taskIsComplete}\t ${taskName}\t${taskDueDate}\  ${taskPriority}`
+        `${taskId}\  ${taskIsComplete}\t ${taskName}\t${taskDueDate}\   \t${taskPriority}`
       );
     });
   });
